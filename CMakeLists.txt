@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
-project(MyRaylibProject C)
+project(c_launcher C)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
