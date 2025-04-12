@@ -10,9 +10,15 @@ include(FetchContent)
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 
-set(BUILD_SHARED_LIBS ON)
+
 # set(ENABLE_LIB_ONLY ON)
-set(ENABLE_STATIC_LIB ON)
+
+# set(ENABLE_LIB_ONLY OFF)
+# set(BUILD_SHARED_LIBS ON)
+# set(ENABLE_STATIC_LIB ON)
+
+set(BUILD_SHARED_LIBS ON)
+set(ENABLE_STATIC_LIB OFF)
 
 # Fetch raylib
 FetchContent_Declare(
@@ -76,7 +82,7 @@ set(USE_NGHTTP2 OFF) # Disable HTTP/2
 set(USE_LIBIDN2 OFF) # Disable HTTP/2
 # Build options
 set(BUILD_CURL_EXE OFF)
-set(BUILD_SHARED_LIBS OFF)
+# set(BUILD_SHARED_LIBS OFF)
 set(CURL_USE_SCHANNEL ON) # Windows SSL
 set(ENABLE_CURL_MANUAL OFF) # Disable manuals (avoids Perl)
 # Ensure minimal HTTP/HTTPS support
@@ -135,17 +141,38 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # endif()
 
 # Post-build step to copy DLLs to the output directory
-# if(WIN32) # Only apply this on Windows where DLLs are needed
-#     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#         # COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#         #     "${CMAKE_BINARY_DIR}/_deps/bsdiff-build/Debug/bsdiff.dll"
-#         #     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bsdiff.dll"
-#         # COMMAND ${CMAKE_COMMAND} -E copy_if_different
-#         #     "${CMAKE_BINARY_DIR}/_deps/raylib-build/raylib/Debug/raylib.dll"
-#         #     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/raylib.dll"
-#         # COMMENT "Copying DLLs to output directory..."
-#     )
-# endif()
+if(WIN32) # Only apply this on Windows where DLLs are needed
+  set(bsdiff_DLL_DEST "${CMAKE_BINARY_DIR}/_deps/bsdiff-build/Debug/bsdiff.dll")
+  
+  if(EXISTS "${bsdiff_DLL_DEST}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/_deps/bsdiff-build/Debug/bsdiff.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>/bsdiff.dll"
+        COMMENT "Copying bsdiff.dll to output directory..."
+    )
+  endif()
+  set(raylib_DLL_DEST "${CMAKE_BINARY_DIR}/_deps/bsdiff-build/Debug/bsdiff.dll")
+  if(EXISTS "${raylib_DLL_DEST}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/_deps/raylib-build/raylib/Debug/raylib.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>/raylib.dll"
+        COMMENT "Copying raylib.dll to output directory..."
+    )
+  endif()
+
+  set(libcurl_DLL_DEST "${CMAKE_BINARY_DIR}/_deps/libcurl-build/lib/Debug/libcurl-d.dll")
+  if(EXISTS "${libcurl_DLL_DEST}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/_deps/libcurl-build/lib/Debug/libcurl-d.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>/libcurl-d.dll"
+        COMMENT "Copying libcurl-d.dll to output directory..."
+    )
+  endif()
+
+endif()
 
 
 # Debug messages
