@@ -108,8 +108,7 @@ endif()
 
 # Define the executable
 add_executable(${PROJECT_NAME} 
-  #src/main.c
-  src/download_test.c
+  src/main.c
 )
 
 # Link libraries
@@ -134,6 +133,44 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     # ${bzip2_SOURCE_DIR}
     # ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
+
+
+set(apps 
+  # src/drop_file_box.c
+  # src/core_drop_files.c
+  # src/custom_file_dialog.c
+  src/raygui_launcher.c
+  src/raygui_diff_patch.c
+)
+
+foreach(app_source ${apps})
+  # Get the filename without extension to use as executable name
+  get_filename_component(app_name ${app_source} NAME_WE)
+  
+  # Create executable for each source file
+  add_executable(${app_name} ${app_source})
+  
+  # Link libraries
+  target_link_libraries(${app_name} PRIVATE 
+    raylib
+    bsdiff
+    libcurl
+    winmm
+    gdi32
+    user32
+    shell32
+  )
+  
+  # Set include directories
+  target_include_directories(${app_name} PRIVATE 
+    ${raygui_SOURCE_DIR}/src
+    ${raygui_SOURCE_DIR}/examples/custom_file_dialog
+    ${bsdiff_SOURCE_DIR}/include
+    ${libcurl_SOURCE_DIR}/include
+    ${libcurl_BINARY_DIR}/include/curl
+  )
+endforeach()
+
 
 # Ensure Windows subsystem (no console)
 # if (MSVC)
@@ -173,7 +210,6 @@ if(WIN32) # Only apply this on Windows where DLLs are needed
   endif()
 
 endif()
-
 
 # Debug messages
 # message(STATUS "bsdiff source dir: ${bsdiff_SOURCE_DIR}")
