@@ -139,8 +139,10 @@ set(apps
   # src/drop_file_box.c
   # src/core_drop_files.c
   # src/custom_file_dialog.c
+  # src/download_curl01.c
   src/raygui_launcher.c
   src/raygui_diff_patch.c
+  # src/scroll_panel.c
 )
 
 foreach(app_source ${apps})
