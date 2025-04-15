@@ -119,7 +119,6 @@ int main(void)
     char hash02[300] = "None";
     char hash03[300] = "None";
 
-
     // Define the drop box area
     Rectangle dropBox01 = { 312, 72, 336, 24 };
     Rectangle dropBox02 = { 312, 168, 336, 24 };
@@ -231,14 +230,40 @@ int main(void)
           
           if (strcmp(tool_mode, "diff") == 0) {
             printf("diff \n");
-            int result = generate_patch(filePath01, filePath02, "txt.diff");
-            if (result == 0) {
-              printf("Diff generated successfully! diff file: data.diff\n");
-              strcpy(status, "Diff generated successfully! diff file: data.diff!");
-            } else {
-              printf("Diff generation failed: %d\n", result);
-              strcpy(status, "Diff generation failed!");
+
+            if (!hasFile01 || !hasFile02) {
+              strncpy(status, "No File Path!", sizeof(status) - 1);
+              status[sizeof(status) - 1] = '\0';
+              // No return; let the loop continue
+            }else{
+              //char *filename = strrchr(filePath01, '\\'); // Find last backslash
+              const char *filename = GetFileName(filePath01); // Handles \ or / automatically
+
+              if (filename) {
+                filename++; // Move past the backslash
+                printf("Filename: %s\n", filename); // Prints "filetest.txt"
+              } else {
+                  filename = filePath01; // No backslash found, use whole string
+                  printf("Filename: %s\n", filename);
+              }
+
+              const char *basename = GetFileNameWithoutExt(filename); // Returns "filetest"
+
+              printf("Filename: %s\n", basename);
+              char newfile[256]; // Ensure enough space
+              snprintf(newfile, sizeof(newfile), "%s.dff", basename); // Concatenate
+
+              int result = generate_patch(filePath01, filePath02, newfile);
+              if (result == 0) {
+                //printf("Diff generated successfully! diff file: data.diff\n");
+                snprintf(status, sizeof(status), "Diff generated successfully! diff file: %s", newfile);
+                status[sizeof(status) - 1] = '\0';
+              } else {
+                //printf("Diff generation failed: %d\n", result);
+                strcpy(status, "Diff generation failed!");
+              }
             }
+            
           }
 
           if (strcmp(tool_mode, "patch") == 0) {
@@ -256,6 +281,8 @@ int main(void)
 
           if (strcmp(tool_mode, "hash") == 0) {
             printf("hash \n");
+            strncpy(status, "Hash mode not implemented!", sizeof(status) - 1);
+            status[sizeof(status) - 1] = '\0';
           }
         };
         GuiLabel((Rectangle){ 24, 384, 48, 24 }, "Status:");
