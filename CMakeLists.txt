@@ -38,10 +38,19 @@ FetchContent_Declare(
 # FetchContent_Declare(
 #     bzip2
 #     GIT_REPOSITORY https://github.com/libarchive/bzip2.git
-#     GIT_TAG master
+#     GIT_TAG master # CMakeLists.txt exist
+#     # GIT_TAG master bzip2-1.0.8 # CMakeLists.txt does not exist
 # )
 
+FetchContent_Declare(
+  miniz
+  GIT_REPOSITORY https://github.com/richgel999/miniz.git
+  GIT_TAG 3.0.2
+)
+
+
 # Fetch bsdiff
+# this use bzip2
 FetchContent_Declare(
     bsdiff
     GIT_REPOSITORY https://github.com/zhuyie/bsdiff.git
@@ -99,6 +108,7 @@ FetchContent_MakeAvailable(
   # bzip2
   bsdiff
   libcurl
+  miniz
 )
 
 # MSVC-specific definitions
@@ -115,6 +125,7 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE 
     raylib
     # bz2_static
+    # bzip2
     bsdiff
     libcurl
     winmm
@@ -140,9 +151,11 @@ set(apps
   # src/core_drop_files.c
   # src/custom_file_dialog.c
   # src/download_curl01.c
+  # src/scroll_panel.c
   src/raygui_launcher.c
   src/raygui_diff_patch.c
-  # src/scroll_panel.c
+  src/unlibzip2.c
+  src/unzipfiles.c
 )
 
 foreach(app_source ${apps})
@@ -157,10 +170,13 @@ foreach(app_source ${apps})
     raylib
     bsdiff
     libcurl
+    # bz2_static
+    bzip2
     winmm
     gdi32
     user32
     shell32
+    miniz
   )
   
   # Set include directories
@@ -170,6 +186,9 @@ foreach(app_source ${apps})
     ${bsdiff_SOURCE_DIR}/include
     ${libcurl_SOURCE_DIR}/include
     ${libcurl_BINARY_DIR}/include/curl
+    ${bsdiff_SOURCE_DIR}/3rdparty/bzip2
+    ${miniz_SOURCE_DIR}
+    # ${bzip2_SOURCE_DIR}
   )
 endforeach()
 
@@ -208,6 +227,16 @@ if(WIN32) # Only apply this on Windows where DLLs are needed
             "${CMAKE_BINARY_DIR}/_deps/libcurl-build/lib/Debug/libcurl-d.dll"
             "$<TARGET_FILE_DIR:${PROJECT_NAME}>/libcurl-d.dll"
         COMMENT "Copying libcurl-d.dll to output directory..."
+    )
+  endif()
+
+  set(miniz_DLL_DEST "${CMAKE_BINARY_DIR}/_deps/miniz-src/bin/Debug/miniz.dll")
+  if(EXISTS "${miniz_DLL_DEST}")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_BINARY_DIR}/_deps/miniz-src/bin/Debug/miniz.dll"
+            "$<TARGET_FILE_DIR:${PROJECT_NAME}>/miniz.dll"
+        COMMENT "Copying miniz.dll to output directory..."
     )
   endif()
 

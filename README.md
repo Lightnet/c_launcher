@@ -71,9 +71,18 @@ Example not added command line.
 ```
  - Configure input/output files for testing diff and patch operations.
 
+- Server:
+  - server script download bandwidth limited test.
+
+# Server:
+  This is just a debug test server for download test. Work in progress.
+
 # Credits:
 
 - [bsdiff](https://github.com/zhuyie/bsdiff) - For diff and patch functionality.
 - [raylib](https://www.raylib.com/) - For rendering and GUI framework.
 - [raygui](https://github.com/raysan5/raygui) - For GUI components.
 - [libcurl](https://curl.se/libcurl/) - For network operations.
+
+- https://raylibtech.itch.io/rguilayout
+    - raygui design tool
