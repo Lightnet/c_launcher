@@ -205,6 +205,7 @@ int main(void)
           hasFile01=false;
         };
         GuiLabel((Rectangle){ 24, 96, 72, 24 }, "File Path:");
+        GuiLabel((Rectangle){ 96, 96, 576, 24 }, filePath01);
         GuiLabel((Rectangle){ 24, 120, 552, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 120, 552, 24 }, hash01);
         //NEW FILE OR DIFF
@@ -214,6 +215,7 @@ int main(void)
           hasFile02=false;
         };
         GuiLabelButton((Rectangle){ 24, 192, 72, 24 }, "File Path:");
+        GuiLabel((Rectangle){ 96, 192, 576, 24 }, filePath02);
         GuiLabelButton((Rectangle){ 24, 216, 72, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 216, 552, 24 }, hash02);
         // PATCH
@@ -223,66 +225,80 @@ int main(void)
           hasFile03=false;
         };
         GuiLabel((Rectangle){ 24, 288, 552, 24 }, "File Path");
+        GuiLabel((Rectangle){ 96, 288, 576, 24 }, filePath03);
         GuiLabel((Rectangle){ 24, 312, 552, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 312, 552, 24 }, hash03);
 
         if (GuiButton((Rectangle){ 24, 360, 120, 24 }, GuiIconText(ICON_FOLDER_SAVE, "Apply"))){
           
           if (strcmp(tool_mode, "diff") == 0) {
-            printf("diff \n");
-
             if (!hasFile01 || !hasFile02) {
-              strncpy(status, "No File Path!", sizeof(status) - 1);
-              status[sizeof(status) - 1] = '\0';
-              // No return; let the loop continue
-            }else{
-              //char *filename = strrchr(filePath01, '\\'); // Find last backslash
-              const char *filename = GetFileName(filePath01); // Handles \ or / automatically
-
-              if (filename) {
-                filename++; // Move past the backslash
-                printf("Filename: %s\n", filename); // Prints "filetest.txt"
-              } else {
-                  filename = filePath01; // No backslash found, use whole string
-                  printf("Filename: %s\n", filename);
-              }
-
-              const char *basename = GetFileNameWithoutExt(filename); // Returns "filetest"
-
-              printf("Filename: %s\n", basename);
-              char newfile[256]; // Ensure enough space
-              snprintf(newfile, sizeof(newfile), "%s.dff", basename); // Concatenate
-
-              int result = generate_patch(filePath01, filePath02, newfile);
-              if (result == 0) {
-                //printf("Diff generated successfully! diff file: data.diff\n");
-                snprintf(status, sizeof(status), "Diff generated successfully! diff file: %s", newfile);
+                strncpy(status, "No File Path!", sizeof(status) - 1);
                 status[sizeof(status) - 1] = '\0';
-              } else {
-                //printf("Diff generation failed: %d\n", result);
-                strcpy(status, "Diff generation failed!");
-              }
+            } else if (!FileExists(filePath01) || !FileExists(filePath02)) {
+                strncpy(status, "File does not exist!", sizeof(status) - 1);
+                status[sizeof(status) - 1] = '\0';
+            } else {
+                const char *basename = GetFileNameWithoutExt(filePath01);
+                if (!basename) {
+                    strncpy(status, "Invalid filename!", sizeof(status) - 1);
+                    status[sizeof(status) - 1] = '\0';
+                } else {
+                    char patchfile[MAX_FILEPATH_SIZE];
+                    snprintf(patchfile, sizeof(patchfile), "%s.dff", basename);
+                    int result = generate_patch(filePath01, filePath02, patchfile);
+                    if (result == BSDIFF_SUCCESS) {
+                        snprintf(status, sizeof(status), "Diff generated successfully! diff file: %s", patchfile);
+                        // Optionally update filePath03 for UI
+                        strncpy(filePath03, patchfile, MAX_FILEPATH_SIZE - 1);
+                        filePath03[MAX_FILEPATH_SIZE - 1] = '\0';
+                        hasFile03 = true;
+                    } else {
+                        strncpy(status, "Diff generation failed!", sizeof(status) - 1);
+                        status[sizeof(status) - 1] = '\0';
+                    }
+                }
             }
-            
           }
 
+
           if (strcmp(tool_mode, "patch") == 0) {
-            printf("patch \n");
-            int result = apply_patch(filePath01, "new.txt", filePath03);
-            printf("bsdiff returned: %d\n", result);
-            if (result == 0) {
-                printf("Diff generated successfully! Patch file: patch.diff\n");
-                strcpy(status, "Diff generated successfully! Patch file: data.diff!");
-            } else {
-                printf("Diff generation failed: %d\n", result);
-                strcpy(status, "Diff generation failed!");
-            }
+              if (!hasFile01 || !hasFile03) {
+                  strncpy(status, "No File Path!", sizeof(status) - 1);
+                  status[sizeof(status) - 1] = '\0';
+              } else if (!FileExists(filePath01) || !FileExists(filePath03)) {
+                  strncpy(status, "File does not exist!", sizeof(status) - 1);
+                  status[sizeof(status) - 1] = '\0';
+              } else {
+                  // Get filename from filePath01
+                  const char *filename = GetFileName(filePath01);
+                  if (!filename) {
+                      strncpy(status, "Invalid filename!", sizeof(status) - 1);
+                      status[sizeof(status) - 1] = '\0';
+                  } else {
+                      // Create filePath02 with "new_" prefix in the same directory
+                      char newfile[MAX_FILEPATH_SIZE];
+                      snprintf(newfile, sizeof(newfile), "%s\\new_%s", GetDirectoryPath(filePath01), filename);
+                      
+                      // Apply patch
+                      int result = apply_patch(filePath01, newfile, filePath03);
+                      if (result == BSDIFF_SUCCESS) {
+                          // Update filePath02 for UI display
+                          strncpy(filePath02, newfile, MAX_FILEPATH_SIZE - 1);
+                          filePath02[MAX_FILEPATH_SIZE - 1] = '\0';
+                          hasFile02 = true;
+                          snprintf(status, sizeof(status), "Patch applied successfully to %s!", filePath02);
+                      } else {
+                          strncpy(status, "Patch application failed!", sizeof(status) - 1);
+                          status[sizeof(status) - 1] = '\0';
+                      }
+                  }
+              }
           }
 
           if (strcmp(tool_mode, "hash") == 0) {
-            printf("hash \n");
-            strncpy(status, "Hash mode not implemented!", sizeof(status) - 1);
-            status[sizeof(status) - 1] = '\0';
+              strncpy(status, "Hash mode not implemented!", sizeof(status) - 1);
+              status[sizeof(status) - 1] = '\0';
           }
         };
         GuiLabel((Rectangle){ 24, 384, 48, 24 }, "Status:");
@@ -301,7 +317,7 @@ int main(void)
         {
             //DrawText("Drop File Here!", 312, 72, 12, DARKGRAY);
             GuiLabel((Rectangle){ 312+8, 72, 336, 24 }, "Drop File Here!");
-            GuiLabel((Rectangle){ 96, 96, 576, 24 }, "None");
+            //GuiLabel((Rectangle){ 96, 96, 576, 24 }, filePath01);
         }
         else
         {
@@ -309,7 +325,7 @@ int main(void)
             GuiLabel((Rectangle){ 312+8, 72, 336, 24 }, "Drop File Here!");
             //DrawText(filePath01, dropBox01.x + 8, dropBox01.y + 20, 10, GRAY);
             //DrawText(filePath01, 96, 96, 10, DARKGRAY);
-            GuiLabel((Rectangle){ 96, 96, 576, 24 }, filePath01);
+            // GuiLabel((Rectangle){ 96, 96, 576, 24 }, filePath01);
         }
 
         //===============================================================================
@@ -325,14 +341,14 @@ int main(void)
             //DrawText("Drop File Here!", 312, 168, 12, DARKGRAY);
             //DrawText("Diff None", 78, 184, 10, DARKGRAY);
             GuiLabel((Rectangle){ 312+8, 168, 336, 24 }, "Drop File Here!");
-            GuiLabel((Rectangle){ 96, 192, 576, 24 }, "None");
+            //GuiLabel((Rectangle){ 96, 192, 576, 24 }, filePath02);
         }
         else
         {
             // DrawText("Dropped file:", 312+8, 168, 12, DARKGRAY);
             GuiLabel((Rectangle){ 312+8, 168, 336, 24 }, "Drop File Here!");
             // DrawText(filePath02, 96, 192, 10, DARKGRAY);
-            GuiLabel((Rectangle){ 96, 192, 576, 24 }, filePath02);
+            // GuiLabel((Rectangle){ 96, 192, 576, 24 }, filePath02);
         }
 
         //===============================================================================
@@ -348,7 +364,7 @@ int main(void)
             // DrawText("Drop File Here!", 312, 264, 12, DARKGRAY);
             // DrawText("None", 78, 184, 10, DARKGRAY);
             GuiLabel((Rectangle){ 312+8, 264, 336, 24 }, "Drop File Here!");
-            GuiLabel((Rectangle){ 96, 288, 576, 24 }, "None");
+            // GuiLabel((Rectangle){ 96, 288, 576, 24 }, filePath03);
         }
         else
         {
@@ -356,7 +372,7 @@ int main(void)
             //DrawText(filePath02, dropBox02.x + 8, dropBox02.y + 20, 10, GRAY);
             // DrawText(filePath03, 78, 184, 10, DARKGRAY);
             GuiLabel((Rectangle){ 312+8, 264, 336, 24 }, "Drop File Here!");
-            GuiLabel((Rectangle){ 96, 288, 576, 24 }, filePath03);
+            // GuiLabel((Rectangle){ 96, 288, 576, 24 }, filePath03);
         }
 
         EndDrawing();
