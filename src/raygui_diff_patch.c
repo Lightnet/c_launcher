@@ -227,7 +227,37 @@ int main(void)
         GuiLabel((Rectangle){ 24, 312, 552, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 312, 552, 24 }, hash03);
 
-        if (GuiButton((Rectangle){ 24, 360, 120, 24 }, GuiIconText(ICON_FOLDER_SAVE, "Apply Diff")));
+        if (GuiButton((Rectangle){ 24, 360, 120, 24 }, GuiIconText(ICON_FOLDER_SAVE, "Apply"))){
+          
+          if (strcmp(tool_mode, "diff") == 0) {
+            printf("diff \n");
+            int result = generate_patch(filePath01, filePath02, "txt.diff");
+            if (result == 0) {
+              printf("Diff generated successfully! diff file: data.diff\n");
+              strcpy(status, "Diff generated successfully! diff file: data.diff!");
+            } else {
+              printf("Diff generation failed: %d\n", result);
+              strcpy(status, "Diff generation failed!");
+            }
+          }
+
+          if (strcmp(tool_mode, "patch") == 0) {
+            printf("patch \n");
+            int result = apply_patch(filePath01, "new.txt", filePath03);
+            printf("bsdiff returned: %d\n", result);
+            if (result == 0) {
+                printf("Diff generated successfully! Patch file: patch.diff\n");
+                strcpy(status, "Diff generated successfully! Patch file: data.diff!");
+            } else {
+                printf("Diff generation failed: %d\n", result);
+                strcpy(status, "Diff generation failed!");
+            }
+          }
+
+          if (strcmp(tool_mode, "hash") == 0) {
+            printf("hash \n");
+          }
+        };
         GuiLabel((Rectangle){ 24, 384, 48, 24 }, "Status:");
         // GuiLabel((Rectangle){ 72, 384, 720, 24 }, "None");
         GuiLabel((Rectangle){ 72, 384, 720, 24 }, status);
