@@ -21,7 +21,6 @@ typedef struct {
   FILE *fp; // File to save download
 } AppData;
 
-
 size_t write_callback(void *ptr, size_t size, size_t nmemb, void *userdata) {
   AppData *app = (AppData *)userdata;
   return fwrite(ptr, size, nmemb, app->fp); // Write to file
@@ -82,7 +81,7 @@ int main()
     int screenWidth = 800;
     int screenHeight = 450;
 
-    InitWindow(screenWidth, screenHeight, "layout_name");
+    InitWindow(screenWidth, screenHeight, "Application Launcher");
 
     // Initialize libcurl
     curl_global_init(CURL_GLOBAL_ALL);
@@ -95,9 +94,9 @@ int main()
     app.progress = 0.0f;
     bool download_triggered = false;
     char status[256] = "None...";
+    char version[10] = "0.0.1";
 
     char textContent[2048] = "Test Context\n Test Me  Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n Context\n";
-
 
     // layout_name: controls initialization
     //----------------------------------------------------------------------------------
@@ -109,7 +108,6 @@ int main()
     Rectangle panelContentRec = {0, 0, 624, 312 };
     Vector2 panelScroll = { 99, -20 };
     Rectangle panelView = { 0 };
-
 
     bool Button003Pressed = false;
     bool Button004Pressed = false;
@@ -124,9 +122,6 @@ int main()
     float fontSize = 20.0f; // Adjust as needed
     Vector2 textSize = MeasureTextEx(GetFontDefault(), textContent, fontSize, 1.0f);
     panelContentRec = (Rectangle){0, 0, textSize.x, textSize.y}; // Set content size based on text
-
-
-
 
     // Main game loop
     while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -152,15 +147,10 @@ int main()
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
             GuiScrollPanel(
-              // (Rectangle){ 24, 24, 624 - ScrollPanel000BoundsOffset.x, 312 - ScrollPanel000BoundsOffset.y}, 
               panelRec,
-              // textContent,
               NULL,
-              //(Rectangle){ 24, 24, 624, 312 },
               panelContentRec,
-              // &ScrollPanel000ScrollOffset, 
               &panelScroll,
-              // &ScrollPanel000ScrollView
               &panelView
             );
 
@@ -187,7 +177,7 @@ int main()
             //GuiEnable();
             
             if(GuiButton((Rectangle){ 672, 384, 120, 24 }, "Download") && !app.still_running){
-              init_download(&app, "http://127.0.0.1:3000/", "raylib-5.5_win32_msvc16.zip");
+              init_download(&app, "http://127.0.0.1:3000/test.zip", "test.zip");
               download_triggered = true;
               strcpy(status, "Downloading ...");
             }; 
@@ -198,7 +188,7 @@ int main()
             // GuiProgressBar((Rectangle){ 24, 360, 624, 24 }, NULL, NULL, &ProgressBar007Value, 0, 1);
             GuiProgressBar((Rectangle){ 24, 360, 624, 24 }, NULL, NULL, &app.progress, 0, 1);
             GuiLabel((Rectangle){ 24, 408, 72, 24 }, "Version:");
-            GuiLabel((Rectangle){ 120, 408, 120, 24 }, "0.0.0");
+            GuiLabel((Rectangle){ 120, 408, 120, 24 }, version);
             GuiLabel((Rectangle){ 24, 384, 48, 24 }, "Status:");
             GuiLabel((Rectangle){ 72, 384, 576, 24 }, status);
 
@@ -218,8 +208,4 @@ int main()
 
     return 0;
 }
-
-//------------------------------------------------------------------------------------
-// Controls Functions Definitions (local)
-//------------------------------------------------------------------------------------
 

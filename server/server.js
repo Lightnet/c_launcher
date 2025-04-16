@@ -1,3 +1,9 @@
+/*
+  Credits:
+   * https://github.com/juliangruber/stream
+   * https://gist.github.com/4poc/1454516
+*/
+
 import http from 'http';
 import path from 'path';
 import fs from 'fs';
@@ -44,44 +50,51 @@ const hostname = '127.0.0.1';
 const port = 3000;
 
 const server = http.createServer((req, res) => {
-  const file = 'raylib-5.5_win32_msvc16.zip';
-  const filePath = path.resolve(file);
-  const filename = path.basename(file);
-  const mimetype = mime.getType(filePath) || 'application/octet-stream';
 
-  try {
-    const stats = fs.statSync(filePath);
-    if (!stats.isFile()) {
+  if(req.url == "/test.zip"){
+    const file = 'raylib-5.5_win32_msvc16.zip';
+    const filePath = path.resolve(file);
+    const filename = path.basename(file);
+    const mimetype = mime.getType(filePath) || 'application/octet-stream';
+
+    try {
+      const stats = fs.statSync(filePath);
+      if (!stats.isFile()) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('Error: Not a file\n');
+        return;
+      }
+
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Type', mimetype);
+      res.setHeader('Content-Length', stats.size);
+
+      const filestream = fs.createReadStream(filePath);
+      //const limitStream = new LimitStream(120); // Limit to 120 KiB/s
+      const limitStream = new LimitStream(50); // Limit to 50 KiB/s
+
+      filestream.on('error', (err) => {
+        console.error('Stream error:', err);
+        if (!res.headersSent) {
+          res.statusCode = 500;
+          res.setHeader('Content-Type', 'text/plain');
+          res.end('Error reading file\n');
+        }
+      });
+
+      filestream.pipe(limitStream).pipe(res);
+    } catch (err) {
+      console.error('File error:', err);
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Error: Not a file\n');
-      return;
+      res.end('File not found\n');
     }
-
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-Type', mimetype);
-    res.setHeader('Content-Length', stats.size);
-
-    const filestream = fs.createReadStream(filePath);
-    //const limitStream = new LimitStream(120); // Limit to 120 KiB/s
-    const limitStream = new LimitStream(50); // Limit to 50 KiB/s
-
-    filestream.on('error', (err) => {
-      console.error('Stream error:', err);
-      if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Error reading file\n');
-      }
-    });
-
-    filestream.pipe(limitStream).pipe(res);
-  } catch (err) {
-    console.error('File error:', err);
-    res.statusCode = 404;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('File not found\n');
+  }else{
+    res.write('Hello World!'); //write a response to the client
+    res.end(); //end the response
   }
+
 });
 
 server.listen(port, hostname, () => {

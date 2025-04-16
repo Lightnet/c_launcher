@@ -1,6 +1,7 @@
 # Game Launcher Prototype & Diff/Patch Utility
 
 This project is a **prototyping build** for a game launcher and a separate diff/patch utility tool, developed in C. The game launcher uses **raylib** and **raygui** to create a graphical interface for handling game updates and patches. The diff/patch utility is a standalone tool for testing and generating file differences and patches, not integrated into the launcher itself.
+
 ## Table of Contents
 - [License](#license)
 - [Overview](#overview)
@@ -9,6 +10,7 @@ This project is a **prototyping build** for a game launcher and a separate diff/
 - [Setup and Build](#setup-and-build)
 - [Usage](#usage)
 - [Credits](#credits)
+
 # License
 This project is licensed under the MIT License (LICENSE).
 ## Overview
@@ -17,6 +19,7 @@ The project consists of two main components:
 2. **Diff/Patch Utility**: A standalone tool for generating and applying file diffs and patches, using **bsdiff**. This utility is intended for testing and development purposes, separate from the launcher.
 
 The diff/patch tool is **not** used within the launcher but serves as a utility for handling file comparison and patch testing workflows.
+
 ## Features
 - **Game Launcher**:
   - Graphical interface powered by raylib and raygui.
@@ -36,6 +39,7 @@ The diff/patch tool is **not** used within the launcher but serves as a utility 
   - [raygui 4.0](https://github.com/raysan5/raygui) - For GUI components.
   - [bsdiff](https://github.com/zhuyie/bsdiff) - For diff and patch generation (Windows build supported).
   - [libcurl 8.13.0](https://curl.se/libcurl/) - For network operations in the launcher.
+  - [miniz 3.0.2](https://github.com/richgel999/miniz) - For Zip
 
 ## Setup and Build
 1. **Prerequisites**:
@@ -77,12 +81,15 @@ Example not added command line.
 # Server:
   This is just a debug test server for download test. Work in progress.
 
+# Notes:
+  - launcher does not check for fail connect.
+
 # Credits:
 
 - [bsdiff](https://github.com/zhuyie/bsdiff) - For diff and patch functionality.
-- [raylib](https://www.raylib.com/) - For rendering and GUI framework.
+- [raylib](https://www.raylib.com) - For rendering and GUI framework.
 - [raygui](https://github.com/raysan5/raygui) - For GUI components.
-- [libcurl](https://curl.se/libcurl/) - For network operations.
+- [libcurl](https://curl.se/libcurl) - For network operations.
 
 - https://raylibtech.itch.io/rguilayout
     - raygui design tool

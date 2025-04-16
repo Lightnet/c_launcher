@@ -203,9 +203,11 @@ int main(void)
         if (GuiButton((Rectangle){ 168, 72, 120, 24 }, GuiIconText(ICON_FILE_OPEN, "Open File")));
         if (GuiButton((Rectangle){ 672, 72, 120, 24 }, GuiIconText(ICON_FILE_OPEN, "Reset"))){
           hasFile01=false;
+          filePath01[0] = '\0';
+          strcpy(hash01, "None");
         };
         GuiLabel((Rectangle){ 24, 96, 72, 24 }, "File Path:");
-        GuiLabel((Rectangle){ 96, 96, 576, 24 }, filePath01);
+        GuiLabel((Rectangle){ 96, 96, 576, 24 }, hasFile01 ? filePath01 : "None");
         GuiLabel((Rectangle){ 24, 120, 552, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 120, 552, 24 }, hash01);
         //NEW FILE OR DIFF
@@ -213,9 +215,11 @@ int main(void)
         if (GuiButton((Rectangle){ 168, 168, 120, 24 }, GuiIconText(ICON_FILE_OPEN, "Open File")));
         if (GuiButton((Rectangle){ 672, 168, 120, 24 }, GuiIconText(ICON_FILE_OPEN, "Reset"))){
           hasFile02=false;
+          filePath02[0] = '\0';
+          strcpy(hash02, "None");
         };
         GuiLabelButton((Rectangle){ 24, 192, 72, 24 }, "File Path:");
-        GuiLabel((Rectangle){ 96, 192, 576, 24 }, filePath02);
+        GuiLabel((Rectangle){ 96, 192, 576, 24 }, hasFile02 ? filePath02 : "None");
         GuiLabelButton((Rectangle){ 24, 216, 72, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 216, 552, 24 }, hash02);
         // PATCH
@@ -223,9 +227,11 @@ int main(void)
         GuiButton((Rectangle){ 168, 264, 120, 24 }, "Open File");
         if (GuiButton((Rectangle){ 672, 264, 120, 24 }, GuiIconText(ICON_FILE_OPEN, "Reset"))){
           hasFile03=false;
+          filePath03[0] = '\0';
+          strcpy(hash03, "None");
         };
         GuiLabel((Rectangle){ 24, 288, 552, 24 }, "File Path");
-        GuiLabel((Rectangle){ 96, 288, 576, 24 }, filePath03);
+        GuiLabel((Rectangle){ 96, 288, 576, 24 }, hasFile03 ? filePath03 : "None");
         GuiLabel((Rectangle){ 24, 312, 552, 24 }, "Hash");
         GuiLabel((Rectangle){ 96, 312, 552, 24 }, hash03);
 
